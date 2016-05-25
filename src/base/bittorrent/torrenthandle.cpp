@@ -915,7 +915,7 @@ int TorrentHandle::leechsCount() const
 
 int TorrentHandle::totalSeedsCount() const
 {
-    return m_nativeStatus.list_seeds;
+    return m_nativeStatus.list_seeds + std::max(m_nativeStatus.num_complete, 0);
 }
 
 int TorrentHandle::totalPeersCount() const
@@ -925,7 +925,7 @@ int TorrentHandle::totalPeersCount() const
 
 int TorrentHandle::totalLeechersCount() const
 {
-    return (m_nativeStatus.list_peers - m_nativeStatus.list_seeds);
+    return (m_nativeStatus.list_peers - m_nativeStatus.list_seeds) + std::max(m_nativeStatus.num_incomplete, 0);
 }
 
 int TorrentHandle::completeCount() const
