@@ -391,6 +391,30 @@ void Application::processParams(const QStringList &params)
             continue;
         }
         
+        if (param.startsWith("@addPaused=")) {
+            torrentParams.addPaused = param.mid(11).toInt() ? true : false;
+            skipTorrentDialog = true;
+            continue;
+        }
+        
+        if (param == "@skipChecking") {
+            torrentParams.skipChecking = true;
+            skipTorrentDialog = true;
+            continue;
+        }
+        
+        if (param.startsWith("@category=")) {
+            torrentParams.category = param.mid(10);
+            skipTorrentDialog = true;
+            continue;
+        }
+        
+        if (param == "@sequential") {
+            torrentParams.sequential = true;
+            skipTorrentDialog = true;
+            continue;
+        }
+        
 #ifndef DISABLE_GUI
         if (AddNewTorrentDialog::isEnabled() && !skipTorrentDialog)
             AddNewTorrentDialog::show(param, m_window);

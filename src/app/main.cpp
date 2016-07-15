@@ -74,6 +74,7 @@ Q_IMPORT_PLUGIN(qico)
 #include "application.h"
 #include "base/utils/misc.h"
 #include "base/preferences.h"
+#include "base/tristatebool.h"
 
 #include "upgrade.h"
 
@@ -104,6 +105,10 @@ struct QBtCommandLineParameters
     int webUiPort;
     QStringList torrents;
     QString savePath;
+    TriStateBool addPaused;
+    bool skipChecking;
+    QString category;
+    bool sequential;
     QString unknownParameter;
     QString errorParameter;
 
@@ -118,6 +123,8 @@ struct QBtCommandLineParameters
         , shouldDaemonize(false)
 #endif
         , webUiPort(Preferences::instance()->getWebUiPort())
+        , skipChecking(false)
+        , sequential(false)
     {
     }
     
@@ -127,6 +134,22 @@ struct QBtCommandLineParameters
         
         if (!savePath.isEmpty()) {
             result.append(QString("@path=%1").arg(savePath));
+        }
+        
+        if (addPaused != TriStateBool::Undefined) {
+            result.append(QString("@addPaused=%1").arg(addPaused ? 1 : 0));
+        }
+        
+        if (skipChecking) {
+            result.append("@skipChecking");
+        }
+        
+        if (!category.isEmpty()) {
+            result.append(QString("@category=%1").arg(category));
+        }
+        
+        if (sequential) {
+            result.append("@sequential");
         }
         
         result += torrents;
@@ -332,6 +355,28 @@ QBtCommandLineParameters parseCommandLine()
                     result.errorParameter = arg;
                 }
             }
+            else if (arg == QLatin1String("--add-started")) {
+                result.addPaused = false;
+            }
+            else if (arg == QLatin1String("--add-paused")) {
+                result.addPaused = true;
+            }
+            else if (arg == QLatin1String("--skip-hash-check")) {
+                result.skipChecking = true;
+            }
+            else if (arg == QLatin1String("--category")) {
+                if ((i+1) < appArguments.size()) {
+                    result.category = appArguments[i+1];
+                    i += 1;
+                }
+                else {
+                    // Invalid arguments
+                    result.errorParameter = arg;
+                }
+            }
+            else if (arg == QLatin1String("--sequential")) {
+                result.sequential = true;
+            }
             else {
                 //Unknown argument
                 result.unknownParameter = arg;
@@ -419,29 +464,27 @@ QString makeUsage(const QString &prg_name)
     text += QLatin1Char('\t') + prg_name + QLatin1String(" (-v | --version)") + QLatin1Char('\n');
 #endif
     text += QLatin1Char('\t') + prg_name + QLatin1String(" (-h | --help)") + QLatin1Char('\n');
-    text += QLatin1Char('\t') + prg_name
-            + QLatin1String(" [--webui-port=<port>]")
-#ifndef DISABLE_GUI
-            + QLatin1String(" [--no-splash]")
-#else
-            + QLatin1String(" [-d | --daemon]")
-#endif
-            + QLatin1String("[(<filename> | <url>)...]") + QLatin1Char('\n');
+    text += QLatin1Char('\t') + prg_name + QLatin1String(" [options]")
+            + QLatin1String(" [(<filename> | <url>)...]") + QLatin1Char('\n');
     text += QObject::tr("Options:") + QLatin1Char('\n');
 #ifndef Q_OS_WIN
-    text += QLatin1String("\t-v | --version\t\t") + QObject::tr("Displays program version") + QLatin1Char('\n');
+    text += QLatin1String("\t-v | --version\t\t\t") + QObject::tr("Displays program version") + QLatin1Char('\n');
 #endif
-    text += QLatin1String("\t-h | --help\t\t") + QObject::tr("Displays this help message") + QLatin1Char('\n');
-    text += QLatin1String("\t--webui-port=<port>\t")
+    text += QLatin1String("\t-h | --help\t\t\t") + QObject::tr("Displays this help message") + QLatin1Char('\n');
+    text += QLatin1String("\t--webui-port=<port>\t\t")
             + QObject::tr("Changes the Web UI port (current: %1)").arg(QString::number(Preferences::instance()->getWebUiPort()))
             + QLatin1Char('\n');
 #ifndef DISABLE_GUI
-    text += QLatin1String("\t--no-splash\t\t") + QObject::tr("Disable splash screen") + QLatin1Char('\n');
+    text += QLatin1String("\t--no-splash\t\t\t") + QObject::tr("Disable splash screen") + QLatin1Char('\n');
 #else
-    text += QLatin1String("\t-d | --daemon\t\t") + QObject::tr("Run in daemon-mode (background)") + QLatin1Char('\n');
+    text += QLatin1String("\t-d | --daemon\t\t\t") + QObject::tr("Run in daemon-mode (background)") + QLatin1Char('\n');
 #endif
-    text += QLatin1String("\t-p | --path <path>\t") + QObject::tr("Torrent save path") + QLatin1Char('\n');
-    text += QLatin1String("\tfiles or urls\t\t") + QObject::tr("Downloads the torrents passed by the user");
+    text += QLatin1String("\t-p | --path <path>\t\t") + QObject::tr("Torrent save path") + QLatin1Char('\n');
+    text += QLatin1String("\t--add-started | --add-paused\t") + QObject::tr("Override automatically starting torrents") + QLatin1Char('\n');
+    text += QLatin1String("\t--skip-hash-check\t\t") + QObject::tr("Skip hash check for new torrents") + QLatin1Char('\n');
+    text += QLatin1String("\t--category <category name>\t") + QObject::tr("Assign new torrents to category") + QLatin1Char('\n');
+    text += QLatin1String("\t--sequential\t\t\t") + QObject::tr("Download new torrents in sequential order") + QLatin1Char('\n');
+    text += QLatin1String("\tfiles or urls\t\t\t") + QObject::tr("Downloads the torrents passed by the user");
 
     return text;
 }
