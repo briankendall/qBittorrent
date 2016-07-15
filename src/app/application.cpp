@@ -385,6 +385,10 @@ void Application::processParams(const QStringList &params)
     foreach (QString param, params) {
         param = param.trimmed();
         
+        // Process strings indicating options specified by the user. Use of
+        // any of these should prevent the "Add new torrent" dialog from
+        // opening:
+        
         if (param.startsWith("@path=")) {
             torrentParams.savePath = param.mid(6);
             skipTorrentDialog = true;

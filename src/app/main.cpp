@@ -131,6 +131,13 @@ struct QBtCommandLineParameters
     QStringList paramList() const
     {
         QStringList result;
+        // Because we're passing a string list to the currently running
+        // qBittorrent process, we need some way of passing along the options
+        // the user has specified. Here we place special strings that are
+        // almost certainly not going to collide with a file path or URL
+        // specified by the user, and placing them at the beginning of the
+        // string listr so that they will be processed before the list of
+        // torrent paths or URLs.
         
         if (!savePath.isEmpty()) {
             result.append(QString("@path=%1").arg(savePath));
