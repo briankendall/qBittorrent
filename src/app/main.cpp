@@ -103,7 +103,9 @@ struct QBtCommandLineParameters
 #endif
     int webUiPort;
     QStringList torrents;
+    QString savePath;
     QString unknownParameter;
+    QString errorParameter;
 
     QBtCommandLineParameters()
         : showHelp(false)
@@ -117,6 +119,18 @@ struct QBtCommandLineParameters
 #endif
         , webUiPort(Preferences::instance()->getWebUiPort())
     {
+    }
+    
+    QStringList paramList() const
+    {
+        QStringList result;
+        
+        if (!savePath.isEmpty()) {
+            result.append(QString("@path=%1").arg(savePath));
+        }
+        
+        result += torrents;
+        return result;
     }
 };
 
@@ -144,6 +158,12 @@ int main(int argc, char *argv[])
     if (!params.unknownParameter.isEmpty()) {
         displayBadArgMessage(QObject::tr("%1 is an unknown command line parameter.", "--random-parameter is an unknown command line parameter.")
                              .arg(params.unknownParameter));
+        return EXIT_FAILURE;
+    }
+    
+    if (!params.errorParameter.isEmpty()) {
+        displayBadArgMessage(QObject::tr("%1 must be followed by a value.", "--random-parameter must be followed by a value.")
+                             .arg(params.errorParameter));
         return EXIT_FAILURE;
     }
 
@@ -210,7 +230,7 @@ int main(int argc, char *argv[])
         qDebug("qBittorrent is already running for this user.");
 
         Utils::Misc::msleep(300);
-        app->sendParams(params.torrents);
+        app->sendParams(params.paramList());
 
         return EXIT_SUCCESS;
     }
@@ -302,6 +322,16 @@ QBtCommandLineParameters parseCommandLine()
                 result.shouldDaemonize = true;
             }
 #endif
+            else if ((arg == QLatin1String("-p")) || (arg == QLatin1String("--path"))) {
+                if ((i+1) < appArguments.size()) {
+                    result.savePath = appArguments[i+1];
+                    i += 1;
+                }
+                else {
+                    // Invalid arguments
+                    result.errorParameter = arg;
+                }
+            }
             else {
                 //Unknown argument
                 result.unknownParameter = arg;
@@ -410,6 +440,7 @@ QString makeUsage(const QString &prg_name)
 #else
     text += QLatin1String("\t-d | --daemon\t\t") + QObject::tr("Run in daemon-mode (background)") + QLatin1Char('\n');
 #endif
+    text += QLatin1String("\t-p | --path <path>\t") + QObject::tr("Torrent save path") + QLatin1Char('\n');
     text += QLatin1String("\tfiles or urls\t\t") + QObject::tr("Downloads the torrents passed by the user");
 
     return text;

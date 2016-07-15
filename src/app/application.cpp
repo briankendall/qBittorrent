@@ -379,15 +379,24 @@ void Application::processParams(const QStringList &params)
         return;
     }
 #endif
+    BitTorrent::AddTorrentParams torrentParams;
+    bool skipTorrentDialog = false;
 
     foreach (QString param, params) {
         param = param.trimmed();
+        
+        if (param.startsWith("@path=")) {
+            torrentParams.savePath = param.mid(6);
+            skipTorrentDialog = true;
+            continue;
+        }
+        
 #ifndef DISABLE_GUI
-        if (AddNewTorrentDialog::isEnabled())
+        if (AddNewTorrentDialog::isEnabled() && !skipTorrentDialog)
             AddNewTorrentDialog::show(param, m_window);
         else
 #endif
-            BitTorrent::Session::instance()->addTorrent(param);
+            BitTorrent::Session::instance()->addTorrent(param, torrentParams);
     }
 }
 
