@@ -458,33 +458,51 @@ void displayVersion()
 QString makeUsage(const QString &prg_name)
 {
     QString text;
+    QLatin1String tab("    ");
 
     text += QObject::tr("Usage:") + QLatin1Char('\n');
 #ifndef Q_OS_WIN
-    text += QLatin1Char('\t') + prg_name + QLatin1String(" (-v | --version)") + QLatin1Char('\n');
+    text += tab + prg_name + QLatin1String(" (-v | --version)") + QLatin1Char('\n');
 #endif
-    text += QLatin1Char('\t') + prg_name + QLatin1String(" (-h | --help)") + QLatin1Char('\n');
-    text += QLatin1Char('\t') + prg_name + QLatin1String(" [options]")
+    text += tab + prg_name + QLatin1String(" (-h | --help)") + QLatin1Char('\n');
+    text += tab + prg_name + QLatin1String(" [options]")
             + QLatin1String(" [(<filename> | <url>)...]") + QLatin1Char('\n');
+    text += QLatin1Char('\n');
     text += QObject::tr("Options:") + QLatin1Char('\n');
 #ifndef Q_OS_WIN
-    text += QLatin1String("\t-v | --version\t\t\t") + QObject::tr("Displays program version") + QLatin1Char('\n');
+    text += tab + QLatin1String("-v | --version                 ")
+            + QObject::tr("Displays program version") + QLatin1Char('\n');
 #endif
-    text += QLatin1String("\t-h | --help\t\t\t") + QObject::tr("Displays this help message") + QLatin1Char('\n');
-    text += QLatin1String("\t--webui-port=<port>\t\t")
+    text += tab + QLatin1String("-h | --help                    ")
+            + QObject::tr("Displays this help message") + QLatin1Char('\n');
+    text += tab + QLatin1String("--webui-port=<port>            ")
             + QObject::tr("Changes the Web UI port (current: %1)").arg(QString::number(Preferences::instance()->getWebUiPort()))
             + QLatin1Char('\n');
 #ifndef DISABLE_GUI
-    text += QLatin1String("\t--no-splash\t\t\t") + QObject::tr("Disable splash screen") + QLatin1Char('\n');
+    text += tab + QLatin1String("--no-splash                    ")
+            + QObject::tr("Disable splash screen") + QLatin1Char('\n');
 #else
-    text += QLatin1String("\t-d | --daemon\t\t\t") + QObject::tr("Run in daemon-mode (background)") + QLatin1Char('\n');
+    text += tab + QLatin1String("-d | --daemon                  ")
+            + QObject::tr("Run in daemon-mode (background)") + QLatin1Char('\n');
 #endif
-    text += QLatin1String("\t-p | --path <path>\t\t") + QObject::tr("Torrent save path") + QLatin1Char('\n');
-    text += QLatin1String("\t--add-started | --add-paused\t") + QObject::tr("Override automatically starting torrents") + QLatin1Char('\n');
-    text += QLatin1String("\t--skip-hash-check\t\t") + QObject::tr("Skip hash check for new torrents") + QLatin1Char('\n');
-    text += QLatin1String("\t--category <category name>\t") + QObject::tr("Assign new torrents to category") + QLatin1Char('\n');
-    text += QLatin1String("\t--sequential\t\t\t") + QObject::tr("Download new torrents in sequential order") + QLatin1Char('\n');
-    text += QLatin1String("\tfiles or urls\t\t\t") + QObject::tr("Downloads the torrents passed by the user");
+    text += tab + QLatin1String("files or urls                  ")
+            + QObject::tr("Downloads the torrents passed by the user") + QLatin1Char('\n');
+    text += QLatin1Char('\n');
+    text += QObject::tr("Options when passing in torrent files or URLs:") + QLatin1Char('\n');
+    text += tab + QLatin1String("-p | --path <path>             ")
+            + QObject::tr("Torrent save path") + QLatin1Char('\n');
+    text += tab + QLatin1String("--add-started | --add-paused   ")
+            + QObject::tr("Add torrents as started or paused") + QLatin1Char('\n');
+    text += tab + QLatin1String("--skip-hash-check              ")
+            + QObject::tr("Skip hash check") + QLatin1Char('\n');
+    text += tab + QLatin1String("--category <category name>     ")
+            + QObject::tr("Assign torrents to category") + QLatin1Char('\n');
+    text += tab + QLatin1String("--sequential                   ")
+            + QObject::tr("Download torrents in sequential order") + QLatin1Char('\n');
+    text += QLatin1Char('\n');
+    text += QObject::tr("Using one or more of the above options will prevent qBittorrent from opening\n"
+                        "the \"Add New Torrent\" dialog and will immediately add the torrent. It will use\n"
+                        "the application settings unless specified otherwise with these options.") + QLatin1Char('\n');
 
     return text;
 }
