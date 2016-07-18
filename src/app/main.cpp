@@ -353,8 +353,8 @@ QBtCommandLineParameters parseCommandLine()
             }
 #endif
             else if ((arg == QLatin1String("-p")) || (arg == QLatin1String("--path"))) {
-                if ((i+1) < appArguments.size()) {
-                    result.savePath = appArguments[i+1];
+                if ((i + 1) < appArguments.size()) {
+                    result.savePath = appArguments[i + 1];
                     i += 1;
                 }
                 else {
@@ -372,8 +372,8 @@ QBtCommandLineParameters parseCommandLine()
                 result.skipChecking = true;
             }
             else if (arg == QLatin1String("--category")) {
-                if ((i+1) < appArguments.size()) {
-                    result.category = appArguments[i+1];
+                if ((i + 1) < appArguments.size()) {
+                    result.category = appArguments[i + 1];
                     i += 1;
                 }
                 else {
@@ -478,34 +478,34 @@ QString makeUsage(const QString &prg_name)
     text += QObject::tr("Options:") + QLatin1Char('\n');
 #ifndef Q_OS_WIN
     text += tab + QLatin1String("-v | --version                 ")
-            + QObject::tr("Displays program version") + QLatin1Char('\n');
+         + QObject::tr("Displays program version") + QLatin1Char('\n');
 #endif
     text += tab + QLatin1String("-h | --help                    ")
-            + QObject::tr("Displays this help message") + QLatin1Char('\n');
+         + QObject::tr("Displays this help message") + QLatin1Char('\n');
     text += tab + QLatin1String("--webui-port=<port>            ")
-            + QObject::tr("Changes the Web UI port (current: %1)").arg(QString::number(Preferences::instance()->getWebUiPort()))
-            + QLatin1Char('\n');
+         + QObject::tr("Changes the Web UI port (current: %1)").arg(QString::number(Preferences::instance()->getWebUiPort()))
+         + QLatin1Char('\n');
 #ifndef DISABLE_GUI
     text += tab + QLatin1String("--no-splash                    ")
-            + QObject::tr("Disable splash screen") + QLatin1Char('\n');
+         + QObject::tr("Disable splash screen") + QLatin1Char('\n');
 #else
     text += tab + QLatin1String("-d | --daemon                  ")
-            + QObject::tr("Run in daemon-mode (background)") + QLatin1Char('\n');
+         + QObject::tr("Run in daemon-mode (background)") + QLatin1Char('\n');
 #endif
     text += tab + QLatin1String("files or urls                  ")
-            + QObject::tr("Downloads the torrents passed by the user") + QLatin1Char('\n');
+         + QObject::tr("Downloads the torrents passed by the user") + QLatin1Char('\n');
     text += QLatin1Char('\n');
     text += QObject::tr("Options when passing in torrent files or URLs:") + QLatin1Char('\n');
     text += tab + QLatin1String("-p | --path <path>             ")
-            + QObject::tr("Torrent save path") + QLatin1Char('\n');
+         + QObject::tr("Torrent save path") + QLatin1Char('\n');
     text += tab + QLatin1String("--add-started | --add-paused   ")
-            + QObject::tr("Add torrents as started or paused") + QLatin1Char('\n');
+         + QObject::tr("Add torrents as started or paused") + QLatin1Char('\n');
     text += tab + QLatin1String("--skip-hash-check              ")
-            + QObject::tr("Skip hash check") + QLatin1Char('\n');
+         + QObject::tr("Skip hash check") + QLatin1Char('\n');
     text += tab + QLatin1String("--category <category name>     ")
-            + QObject::tr("Assign torrents to category") + QLatin1Char('\n');
+         + QObject::tr("Assign torrents to category") + QLatin1Char('\n');
     text += tab + QLatin1String("--sequential                   ")
-            + QObject::tr("Download torrents in sequential order") + QLatin1Char('\n');
+         + QObject::tr("Download torrents in sequential order") + QLatin1Char('\n');
     text += QLatin1Char('\n');
     text += QObject::tr("Using one or more of the above options will prevent qBittorrent from opening\n"
                         "the \"Add New Torrent\" dialog and will immediately add the torrent. It will use\n"
