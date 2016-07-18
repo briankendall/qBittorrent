@@ -21,8 +21,8 @@ document_icon.path = Contents/Resources
 document_icon.files = $$DIST_PATH/qBitTorrentDocument.icns
 QMAKE_BUNDLE_DATA += document_icon
 
-qt_conf.path = Contents/Resources
-qt_conf.files = $$DIST_PATH/qt.conf
+# qt_conf.path = Contents/Resources
+# qt_conf.files = $$DIST_PATH/qt.conf
 QMAKE_BUNDLE_DATA += qt_conf
 
 qt_translations.path = Contents/translations
