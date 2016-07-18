@@ -39,6 +39,11 @@
 #include <QObject>
 #include <QByteArray>
 #include <QHash>
+#ifndef QT_NO_OPENSSL
+#include <QSslSocket>
+#else
+#include <QTcpSocket>
+#endif
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -64,6 +69,7 @@ namespace Net
 
     private slots:
         void readyRead();
+        void error(QAbstractSocket::SocketError socketError);
 
     private:
         enum States

@@ -105,6 +105,7 @@ Smtp::Smtp(QObject *parent)
 
     connect(m_socket, SIGNAL(readyRead()), SLOT(readyRead()));
     connect(m_socket, SIGNAL(disconnected()), SLOT(deleteLater()));
+    connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
 
     // Test hmacMD5 function (http://www.faqs.org/rfcs/rfc2202.html)
     Q_ASSERT(hmacMD5("Jefe", "what do ya want for nothing?").toHex()
@@ -524,4 +525,13 @@ QString Smtp::getCurrentDateTime() const
 
     QString ret = weekDayStr + ", " + dayStr + " " + monthStr + " " + yearStr + " " + timeStr + " " + timeOffsetStr;
     return ret;
+}
+
+void Smtp::error(QAbstractSocket::SocketError socketError)
+{
+    // Getting a remote host closed error is apparently normal, even when successfully sending
+    // an email
+    if (socketError != QAbstractSocket::RemoteHostClosedError) {
+        logError(m_socket->errorString());
+    }
 }
