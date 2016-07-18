@@ -111,6 +111,7 @@ struct QBtCommandLineParameters
     bool sequential;
     QString unknownParameter;
     QString errorParameter;
+    QString argumentError;
 
     QBtCommandLineParameters()
         : showHelp(false)
@@ -194,6 +195,11 @@ int main(int argc, char *argv[])
     if (!params.errorParameter.isEmpty()) {
         displayBadArgMessage(QObject::tr("%1 must be followed by a value.", "--random-parameter must be followed by a value.")
                              .arg(params.errorParameter));
+        return EXIT_FAILURE;
+    }
+    
+    if (!params.argumentError.isEmpty()) {
+        displayBadArgMessage(params.argumentError);
         return EXIT_FAILURE;
     }
 
@@ -319,16 +325,57 @@ int main(int argc, char *argv[])
     return app->exec(params.torrents);
 }
 
+bool parseArgumentWithValue(QString& value, QString& errorArgument, const QStringList& appArguments, int& i,
+  const QString& argName)
+{
+    if (appArguments[i].startsWith(argName + "=")) {
+        value = appArguments[i].mid(argName.length() + 1);
+        
+        if (value.length() == 0)
+            errorArgument = argName;
+        
+        return true;
+    }
+    else if (appArguments[i] == argName) {
+        if ((i + 1) < appArguments.size()) {
+            // NB: in this circumstance i will be incremented so that the for loop in parseCommandLine will
+            // skip the next argument (since it is a value). Therefore it can't be assumed that i will be
+            // the same value when parseArgumentWithValue() returns.
+            i += 1;
+            value = appArguments[i];
+            return true;
+        }
+        else {
+            // Invalid argument
+            errorArgument = argName;
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+bool parseArgumentWithValue(QString& value, QString& errorArgument, const QStringList& appArguments, int& i,
+  const QString& argName1, const QString& argName2)
+{
+    if (parseArgumentWithValue(value, errorArgument, appArguments, i, argName1)) {
+        return true;
+    }
+    else {
+        return parseArgumentWithValue(value, errorArgument, appArguments, i, argName2);
+    }
+}
+
 QBtCommandLineParameters parseCommandLine()
 {
     QBtCommandLineParameters result;
+    QString value;
     QStringList appArguments = qApp->arguments();
 
     for (int i = 1; i < appArguments.size(); ++i) {
         const QString& arg = appArguments[i];
 
-        if ((arg.startsWith("--") && !arg.endsWith(".torrent")) ||
-            (arg.startsWith("-") && arg.size() == 2)) {
+        if ((arg.startsWith("--") || arg.startsWith("-")) && !arg.endsWith(".torrent")) {
             //Parse known parameters
             if ((arg == QLatin1String("-h")) || (arg == QLatin1String("--help"))) {
                 result.showHelp = true;
@@ -338,10 +385,8 @@ QBtCommandLineParameters parseCommandLine()
                 result.showVersion = true;
             }
 #endif
-            else if (arg.startsWith(QLatin1String("--webui-port="))) {
-                QStringList parts = arg.split(QLatin1Char('='));
-                if (parts.size() == 2)
-                    result.webUiPort = parts.last().toInt();
+            else if (parseArgumentWithValue(value, result.errorParameter, appArguments, i, "--webui-port")) {
+                result.webUiPort = value.toInt();
             }
 #ifndef DISABLE_GUI
             else if (arg == QLatin1String("--no-splash")) {
@@ -352,34 +397,25 @@ QBtCommandLineParameters parseCommandLine()
                 result.shouldDaemonize = true;
             }
 #endif
-            else if ((arg == QLatin1String("-p")) || (arg == QLatin1String("--path"))) {
-                if ((i + 1) < appArguments.size()) {
-                    result.savePath = appArguments[i + 1];
-                    i += 1;
+            else if (parseArgumentWithValue(value, result.errorParameter, appArguments, i, "-p", "--path")) {
+                result.savePath = value;
+            }
+            else if (parseArgumentWithValue(value, result.errorParameter, appArguments, i, "--status")) {
+                if (value == "started") {
+                    result.addPaused = false;
+                }
+                else if (value == "paused") {
+                    result.addPaused = true;
                 }
                 else {
-                    // Invalid arguments
-                    result.errorParameter = arg;
+                    result.argumentError = QObject::tr("valid values for --status are 'started' and 'paused'");
                 }
-            }
-            else if (arg == QLatin1String("--add-started")) {
-                result.addPaused = false;
-            }
-            else if (arg == QLatin1String("--add-paused")) {
-                result.addPaused = true;
             }
             else if (arg == QLatin1String("--skip-hash-check")) {
                 result.skipChecking = true;
             }
-            else if (arg == QLatin1String("--category")) {
-                if ((i + 1) < appArguments.size()) {
-                    result.category = appArguments[i + 1];
-                    i += 1;
-                }
-                else {
-                    // Invalid arguments
-                    result.errorParameter = arg;
-                }
+            else if (parseArgumentWithValue(value, result.errorParameter, appArguments, i, "--category")) {
+                result.category = value;
             }
             else if (arg == QLatin1String("--sequential")) {
                 result.sequential = true;
@@ -498,11 +534,11 @@ QString makeUsage(const QString &prg_name)
     text += QObject::tr("Options when passing in torrent files or URLs:") + QLatin1Char('\n');
     text += tab + QLatin1String("-p | --path <path>             ")
          + QObject::tr("Torrent save path") + QLatin1Char('\n');
-    text += tab + QLatin1String("--add-started | --add-paused   ")
+    text += tab + QLatin1String("--status=<started|paused>      ")
          + QObject::tr("Add torrents as started or paused") + QLatin1Char('\n');
     text += tab + QLatin1String("--skip-hash-check              ")
          + QObject::tr("Skip hash check") + QLatin1Char('\n');
-    text += tab + QLatin1String("--category <category name>     ")
+    text += tab + QLatin1String("--category=<category name>     ")
          + QObject::tr("Assign torrents to category") + QLatin1Char('\n');
     text += tab + QLatin1String("--sequential                   ")
          + QObject::tr("Download torrents in sequential order") + QLatin1Char('\n');
