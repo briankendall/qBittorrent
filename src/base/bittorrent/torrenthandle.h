@@ -96,6 +96,7 @@ namespace BitTorrent
         QString savePath;
         bool disableTempPath;
         bool sequential;
+        bool firstLastPiecePriority;
         bool hasSeedStatus;
         bool skipChecking;
         TriStateBool addForced;

@@ -109,6 +109,7 @@ struct QBtCommandLineParameters
     bool skipChecking;
     QString category;
     bool sequential;
+    bool firstLastPiecePriority;
     QString unknownParameter;
     QString errorParameter;
     QString argumentError;
@@ -126,6 +127,7 @@ struct QBtCommandLineParameters
         , webUiPort(Preferences::instance()->getWebUiPort())
         , skipChecking(false)
         , sequential(false)
+        , firstLastPiecePriority(false)
     {
     }
     
@@ -140,25 +142,23 @@ struct QBtCommandLineParameters
         // string listr so that they will be processed before the list of
         // torrent paths or URLs.
         
-        if (!savePath.isEmpty()) {
+        if (!savePath.isEmpty())
             result.append(QString("@path=%1").arg(savePath));
-        }
         
-        if (addPaused != TriStateBool::Undefined) {
+        if (addPaused != TriStateBool::Undefined)
             result.append(QString("@addPaused=%1").arg(addPaused ? 1 : 0));
-        }
         
-        if (skipChecking) {
+        if (skipChecking)
             result.append("@skipChecking");
-        }
         
-        if (!category.isEmpty()) {
+        if (!category.isEmpty())
             result.append(QString("@category=%1").arg(category));
-        }
         
-        if (sequential) {
+        if (sequential)
             result.append("@sequential");
-        }
+        
+        if (firstLastPiecePriority)
+            result.append("@firstLastPiecePriority");
         
         result += torrents;
         return result;
@@ -420,6 +420,9 @@ QBtCommandLineParameters parseCommandLine()
             else if (arg == QLatin1String("--sequential")) {
                 result.sequential = true;
             }
+            else if (arg == QLatin1String("--first-and-last")) {
+                result.firstLastPiecePriority = true;
+            }
             else {
                 //Unknown argument
                 result.unknownParameter = arg;
@@ -542,6 +545,8 @@ QString makeUsage(const QString &prg_name)
          + QObject::tr("Assign torrents to category") + QLatin1Char('\n');
     text += tab + QLatin1String("--sequential                   ")
          + QObject::tr("Download torrents in sequential order") + QLatin1Char('\n');
+    text += tab + QLatin1String("--first-and-last               ")
+         + QObject::tr("Download first and last pieces first") + QLatin1Char('\n');
     text += QLatin1Char('\n');
     text += QObject::tr("Using one or more of the above options will prevent qBittorrent from opening\n"
                         "the \"Add New Torrent\" dialog and will immediately add the torrent. It will use\n"

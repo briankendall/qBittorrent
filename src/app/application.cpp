@@ -426,6 +426,12 @@ void Application::processParams(const QStringList &params)
             continue;
         }
         
+        if (param == "@firstLastPiecePriority") {
+            torrentParams.firstLastPiecePriority = true;
+            skipTorrentDialog = true;
+            continue;
+        }
+        
 #ifndef DISABLE_GUI
         if (AddNewTorrentDialog::isEnabled() && !skipTorrentDialog)
             AddNewTorrentDialog::show(param, m_window);

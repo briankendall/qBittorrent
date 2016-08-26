@@ -84,6 +84,7 @@ AddTorrentData::AddTorrentData(const AddTorrentParams &params)
     , savePath(params.savePath)
     , disableTempPath(params.disableTempPath)
     , sequential(params.sequential)
+    , firstLastPiecePriority(params.firstLastPiecePriority)
     , hasSeedStatus(params.skipChecking) // do not react on 'torrent_finished_alert' when skipping
     , skipChecking(params.skipChecking)
     , addForced(params.addForced)
@@ -216,8 +217,10 @@ TorrentHandle::TorrentHandle(Session *session, const libtorrent::torrent_handle 
     updateStatus();
     m_hash = InfoHash(m_nativeStatus.info_hash);
 
-    if (!data.resumed)
+    if (!data.resumed) {
         setSequentialDownload(data.sequential);
+        setFirstLastPiecePriority(data.firstLastPiecePriority);
+    }
 }
 
 TorrentHandle::~TorrentHandle() {}
