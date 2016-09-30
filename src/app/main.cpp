@@ -130,7 +130,7 @@ struct QBtCommandLineParameters
         , firstLastPiecePriority(false)
     {
     }
-    
+
     QStringList paramList() const
     {
         QStringList result;
@@ -141,25 +141,25 @@ struct QBtCommandLineParameters
         // specified by the user, and placing them at the beginning of the
         // string listr so that they will be processed before the list of
         // torrent paths or URLs.
-        
+
         if (!savePath.isEmpty())
             result.append(QString("@path=%1").arg(savePath));
-        
+
         if (addPaused != TriStateBool::Undefined)
             result.append(QString("@addPaused=%1").arg(addPaused ? 1 : 0));
-        
+
         if (skipChecking)
             result.append("@skipChecking");
-        
+
         if (!category.isEmpty())
             result.append(QString("@category=%1").arg(category));
-        
+
         if (sequential)
             result.append("@sequential");
-        
+
         if (firstLastPiecePriority)
             result.append("@firstLastPiecePriority");
-        
+
         result += torrents;
         return result;
     }
@@ -191,13 +191,13 @@ int main(int argc, char *argv[])
                              .arg(params.unknownParameter));
         return EXIT_FAILURE;
     }
-    
+
     if (!params.errorParameter.isEmpty()) {
         displayBadArgMessage(QObject::tr("%1 must be followed by a value.", "--random-parameter must be followed by a value.")
                              .arg(params.errorParameter));
         return EXIT_FAILURE;
     }
-    
+
     if (!params.argumentError.isEmpty()) {
         displayBadArgMessage(params.argumentError);
         return EXIT_FAILURE;
@@ -330,10 +330,10 @@ bool parseArgumentWithValue(QString& value, QString& errorArgument, const QStrin
 {
     if (appArguments[i].startsWith(argName + "=")) {
         value = appArguments[i].mid(argName.length() + 1);
-        
+
         if (value.length() == 0)
             errorArgument = argName;
-        
+
         return true;
     }
     else if (appArguments[i] == argName) {
@@ -351,7 +351,7 @@ bool parseArgumentWithValue(QString& value, QString& errorArgument, const QStrin
             return true;
         }
     }
-    
+
     return false;
 }
 
